@@ -1,239 +1,509 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Для Настёныша ❤️</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Для Настёныша ❤️</title>
 
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+  <style>
+    :root{
+      --bg1:#ff4d6d;
+      --bg2:#ff8fab;
+      --card: rgba(255,255,255,.14);
+      --shadow: 0 12px 34px rgba(0,0,0,.28);
+      --radius: 18px;
+    }
 
-body {
-  font-family: Arial, sans-serif;
-  min-height: 100svh;
-  overflow: hidden;
-  color: white;
-  background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cpath d='M70 110 C30 70 30 40 50 35 C60 32 70 42 70 42 C70 42 80 32 90 35 C110 40 110 70 70 110 Z' fill='none' stroke='white' stroke-opacity='0.06' stroke-width='3'/%3E%3C/svg%3E"),
-    linear-gradient(135deg, #ff4d6d, #ff8fab);
-  animation: pulseBg 6s infinite alternate;
-}
+    *{ margin:0; padding:0; box-sizing:border-box; }
+    html, body { height: 100%; }
+    body{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      min-height: 100svh;
+      color: #fff;
+      overflow-x: hidden;
+      overflow-y: auto;
 
-@keyframes pulseBg {
-  from { filter: brightness(1); }
-  to { filter: brightness(1.06); }
-}
+      background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cpath d='M70 110 C30 70 30 40 50 35 C60 32 70 42 70 42 C70 42 80 32 90 35 C110 40 110 70 70 110 Z' fill='none' stroke='white' stroke-opacity='0.06' stroke-width='3'/%3E%3C/svg%3E"),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      animation: pulseBg 6s infinite alternate;
+    }
 
-.screen {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 16px;
-  z-index: 2;
-}
+    @keyframes pulseBg { from { filter: brightness(1); } to { filter: brightness(1.06); } }
 
-.hidden {
-  display: none;
-}
+    .screen{
+      position: relative;
+      min-height: 100svh;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      padding: 18px 16px 22px;
+      z-index: 2;
+      gap: 10px;
+    }
+    .hidden{ display:none !important; }
 
-button {
-  margin-top: 24px;
-  padding: 14px 30px;
-  font-size: 17px;
-  border: none;
-  border-radius: 30px;
-  background: white;
-  color: #ff4d6d;
-  cursor: pointer;
-}
+    .card{
+      width: min(520px, 92vw);
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 22px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
 
-#slideshow img {
-  width: 100%;
-  max-width: 320px;
-  max-height: 45svh;
-  object-fit: contain;
-  border-radius: 18px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.3);
-  animation: pulseImg 4s infinite;
-}
+    h1{ font-size: 26px; line-height: 1.15; }
+    h2{ font-size: 22px; line-height: 1.2; }
+    p{ line-height: 1.35; }
 
-@keyframes pulseImg {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.015); }
-  100% { transform: scale(1); }
-}
+    button{
+      margin-top: 10px;
+      padding: 14px 28px;
+      font-size: 16px;
+      border: none;
+      border-radius: 999px;
+      background: #fff;
+      color: #ff4d6d;
+      cursor: pointer;
+      box-shadow: 0 10px 22px rgba(0,0,0,.18);
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:active{ transform: translateY(1px); }
 
-.text {
-  margin-top: 14px;
-  font-size: 18px;
-  line-height: 1.35;
-  max-width: 90%;
-}
+    /* Слайд */
+    #slideWrap{
+      width: min(520px, 92vw);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 12px;
+    }
 
-.collage {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  max-width: 92%;
-  margin-top: 18px;
-}
+    #slideImage{
+      width: 100%;
+      max-width: 360px;
+      max-height: 52svh;
+      object-fit: contain;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      transition: opacity .45s ease;
+      opacity: 1;
+      background: rgba(255,255,255,.08);
+    }
+    #slideImage.fade{ opacity: 0; }
 
-.collage img {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-  border-radius: 14px;
-}
+    .text{
+      font-size: 18px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.12);
+      border: 1px solid rgba(255,255,255,.12);
+      width: 100%;
+    }
 
-/* фоновые падающие сердечки */
-.heart {
-  position: fixed;
-  top: -40px;
-  color: white;
-  opacity: 0.25;
-  animation: fall linear forwards;
-  z-index: 1;
-  pointer-events: none;
-}
+    .meta{
+      opacity: .85;
+      font-size: 14px;
+    }
 
-@keyframes fall {
-  to {
-    transform: translateY(120svh);
-    opacity: 0;
-  }
-}
+    /* Финал */
+    .collage{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      width: min(520px, 92vw);
+      margin-top: 10px;
+    }
+    .collage img{
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 14px;
+      box-shadow: 0 8px 18px rgba(0,0,0,.18);
+      cursor: pointer;
+    }
 
-/* сердечки по тапу */
-.tap-heart {
-  position: fixed;
-  font-size: 22px;
-  animation: tapFloat 2s forwards;
-  pointer-events: none;
-  z-index: 3;
-}
+    /* Модалка просмотра фото */
+    .modal{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      padding: 18px;
+    }
+    .modal.show{ display:flex; }
+    .modal img{
+      width: min(92vw, 720px);
+      max-height: 86svh;
+      object-fit: contain;
+      border-radius: 16px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.45);
+      background: rgba(255,255,255,.06);
+    }
+    .modal .close{
+      position: fixed;
+      top: max(14px, env(safe-area-inset-top));
+      right: max(14px, env(safe-area-inset-right));
+      background: rgba(255,255,255,.92);
+      color: #ff4d6d;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 14px;
+      border: none;
+    }
 
-@keyframes tapFloat {
-  0% {
-    transform: scale(0.5);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-80px) scale(1.4);
-    opacity: 0;
-  }
-}
-</style>
+    /* Сердечки фоновые */
+    .heart{
+      position: fixed;
+      top: -40px;
+      color: #fff;
+      opacity: 0.22;
+      animation: fall linear forwards;
+      z-index: 1;
+      pointer-events: none;
+      will-change: transform, opacity;
+      transform: translate3d(0,0,0);
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.12));
+    }
+    @keyframes fall{
+      to { transform: translate3d(0, 120svh, 0); opacity: 0; }
+    }
+
+    /* Сердечки по тапу */
+    .tap-heart{
+      position: fixed;
+      font-size: 22px;
+      animation: tapFloat 1.6s forwards;
+      pointer-events: none;
+      z-index: 3;
+      will-change: transform, opacity;
+      transform: translate3d(0,0,0);
+    }
+    @keyframes tapFloat{
+      0% { transform: translate3d(0,0,0) scale(.6); opacity: 1; }
+      100% { transform: translate3d(0,-80px,0) scale(1.35); opacity: 0; }
+    }
+
+    /* Уважение к настройке "уменьшить движение" */
+    @media (prefers-reduced-motion: reduce){
+      body{ animation:none; }
+      .heart, .tap-heart{ display:none !important; }
+      #slideImage{ transition:none; }
+    }
+  </style>
 </head>
 
 <body>
+  <audio id="music" src="music.mp3" preload="auto" playsinline></audio>
 
-<audio id="music" src="music.mp3"></audio>
+  <!-- START -->
+  <section class="screen" id="startScreen">
+    <div class="card">
+      <h1>Для тебя, моя 🦊❤️</h1>
+      <p style="margin-top:10px; opacity:.9">Нажми, чтобы включить звук и начать</p>
+      <button id="startBtn" aria-label="Включить и начать">▶ Включить</button>
+      <p class="meta" id="hint" style="margin-top:10px;"></p>
+    </div>
+  </section>
 
-<div class="screen" id="start">
-  <h1>Для тебя, моя 🦊❤️</h1>
-  <p style="margin-top:10px;">Нажми и включи звук</p>
-  <button onclick="startShow()">▶ Включить</button>
-</div>
+  <!-- SLIDESHOW -->
+  <section class="screen hidden" id="slideScreen">
+    <div id="slideWrap">
+      <img id="slideImage" alt="" />
+      <div class="text" id="slideText"></div>
+      <div class="meta" id="progress"></div>
 
-<div class="screen hidden" id="slideshow">
-  <img id="slideImage">
-  <div class="text" id="slideText"></div>
-</div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+        <button id="toggleSoundBtn" aria-label="Включить или выключить звук">🔊 Звук</button>
+        <button id="skipBtn" aria-label="Пропустить к финалу">⏭ Пропустить</button>
+      </div>
+    </div>
+  </section>
 
-<div class="screen hidden" id="final">
-  <h2>С Днём Святого Валентина ❤️</h2>
-  <p style="margin:10px 0;">Я люблю тебя, Настёныш</p>
-  <p style="opacity:.8;">Вместе с 15.01.2026</p>
+  <!-- FINAL -->
+  <section class="screen hidden" id="finalScreen">
+    <div class="card">
+      <h2>С Днём Святого Валентина ❤️</h2>
+      <p style="margin:10px 0 6px;">Я люблю тебя, Настёныш</p>
+      <p style="opacity:.85;">Вместе с 15.01.2026</p>
 
-  <div class="collage" id="collage"></div>
+      <button id="hugBtn">🤍 Обнять</button>
+      <p id="hugText" style="margin-top:12px; font-size:18px;"></p>
+    </div>
 
-  <button onclick="hug()">🤍 Обнять</button>
-  <p id="hugText" style="margin-top:14px; font-size:19px;"></p>
-</div>
+    <div class="collage" id="collage" aria-label="Коллаж фотографий"></div>
 
-<script>
-const slides = [
-  { img: "images/photo1.jpg", text: "Моя Анастасия…" },
-  { img: "images/photo2.jpg", text: "Настёныш, с тобой каждый день — особенный" },
-  { img: "images/photo3.jpg", text: "Ты — мой самый любимый человек" },
-  { img: "images/photo4.jpg", text: "Лисёныш, я влюбляюсь в тебя снова и снова" },
-  { img: "images/photo5.jpg", text: "Спасибо, что ты есть у меня" },
-  { img: "images/photo6.jpg", text: "Спасибо" }
-  // если будет 6 фото — просто добавь здесь
-];
+    <p class="meta" style="margin-top:14px; opacity:.8;">
+      (Нажми на фото, чтобы открыть)
+    </p>
+  </section>
 
-let index = 0;
-const totalTime = 20000;
-const slideTime = totalTime / slides.length;
+  <!-- MODAL -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <button class="close" id="closeModalBtn" aria-label="Закрыть">✕</button>
+    <img id="modalImg" alt="Фото" />
+  </div>
 
-function startShow() {
-  music.play();
-  start.classList.add("hidden");
-  slideshow.classList.remove("hidden");
-  showSlide();
-}
+  <script>
+    // === Настройка слайдов ===
+    const slides = [
+      { img: "images/photo1.jpg", text: "Моя Анастасия…" },
+      { img: "images/photo2.jpg", text: "Настёныш, с тобой каждый день — особенный" },
+      { img: "images/photo3.jpg", text: "Ты — мой самый любимый человек" },
+      { img: "images/photo4.jpg", text: "Лисёныш, я влюбляюсь в тебя снова и снова" },
+      { img: "images/photo5.jpg", text: "Спасибо, что ты есть у меня" },
+      { img: "images/photo6.jpg", text: "Спасибо" }
+    ];
 
-function showSlide() {
-  if (index >= slides.length) {
-    slideshow.classList.add("hidden");
-    final.classList.remove("hidden");
-    buildCollage();
-    return;
-  }
-  slideImage.src = slides[index].img;
-  slideText.innerText = slides[index].text;
-  index++;
-  setTimeout(showSlide, slideTime);
-}
+    // === Элементы ===
+    const music = document.getElementById("music");
 
-function buildCollage() {
-  const collage = document.getElementById("collage");
-  slides.forEach(slide => {
-    const img = document.createElement("img");
-    img.src = slide.img;
-    collage.appendChild(img);
-  });
-}
+    const startScreen = document.getElementById("startScreen");
+    const slideScreen = document.getElementById("slideScreen");
+    const finalScreen = document.getElementById("finalScreen");
 
-function hug() {
-  document.getElementById("hugText").innerText =
-    "Срочно нужно обнять своего Котёмика 🐾❤️";
-}
+    const startBtn = document.getElementById("startBtn");
+    const hint = document.getElementById("hint");
 
-/* хаотичные фоновые сердечки */
-function createHeart() {
-  const heart = document.createElement("div");
-  heart.className = "heart";
-  heart.innerText = "❤️";
-  heart.style.left = Math.random() * 100 + "vw";
-  heart.style.fontSize = (12 + Math.random() * 20) + "px";
-  heart.style.animationDuration = (8 + Math.random() * 8) + "s";
-  document.body.appendChild(heart);
-  setTimeout(() => heart.remove(), 16000);
-}
-setInterval(createHeart, 900);
+    const slideImage = document.getElementById("slideImage");
+    const slideText = document.getElementById("slideText");
+    const progress = document.getElementById("progress");
 
-/* сердечки по тапу */
-document.addEventListener("click", e => {
-  const h = document.createElement("div");
-  h.className = "tap-heart";
-  h.innerText = "❤️";
-  h.style.left = e.clientX + "px";
-  h.style.top = e.clientY + "px";
-  document.body.appendChild(h);
-  setTimeout(() => h.remove(), 2000);
-});
-</script>
+    const toggleSoundBtn = document.getElementById("toggleSoundBtn");
+    const skipBtn = document.getElementById("skipBtn");
 
+    const collage = document.getElementById("collage");
+    const hugBtn = document.getElementById("hugBtn");
+    const hugText = document.getElementById("hugText");
+
+    const modal = document.getElementById("modal");
+    const modalImg = document.getElementById("modalImg");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+
+    // === Состояние ===
+    let started = false;
+    let index = 0;
+    let timer = null;
+
+    // 20 секунд на всё (как у тебя), но можно поменять
+    const totalTime = 20000;
+    const slideTime = Math.round(totalTime / slides.length);
+
+    // === Утилиты ===
+    function show(el){ el.classList.remove("hidden"); }
+    function hide(el){ el.classList.add("hidden"); }
+
+    function fadeInAudio(audio, ms = 900, target = 1.0){
+      audio.volume = 0.0;
+      const steps = 30;
+      let i = 0;
+      const t = setInterval(() => {
+        i++;
+        audio.volume = Math.min(target, (i/steps) * target);
+        if (i >= steps) clearInterval(t);
+      }, ms/steps);
+    }
+
+    function setSoundButton(){
+      toggleSoundBtn.textContent = music.muted ? "🔇 Звук" : "🔊 Звук";
+    }
+
+    async function preloadSlides(){
+      // Предзагрузка: на 5МБ фото может быть тяжело, но лучше так, чем лаги по ходу.
+      // Если будет слишком долго — можно грузить первые 2-3, а остальные по мере показа.
+      const tasks = slides.map(s => new Promise(res => {
+        const im = new Image();
+        im.onload = () => res(true);
+        im.onerror = () => res(false);
+        im.src = s.img;
+      }));
+      await Promise.all(tasks);
+    }
+
+    // === Слайдшоу ===
+    function renderSlide(i){
+      const s = slides[i];
+      progress.textContent = `${i+1} / ${slides.length}`;
+
+      slideImage.classList.add("fade");
+      // небольшая задержка, чтобы fade успел начаться
+      setTimeout(() => {
+        slideImage.alt = s.text;
+        slideText.textContent = s.text;
+
+        // Смена src
+        slideImage.src = s.img;
+
+        // Убираем fade после загрузки (или через таймаут как запасной вариант)
+        let done = false;
+        const finish = () => {
+          if (done) return;
+          done = true;
+          slideImage.classList.remove("fade");
+        };
+        slideImage.onload = finish;
+        setTimeout(finish, 600);
+      }, 220);
+    }
+
+    function nextSlide(){
+      if (index >= slides.length){
+        endShow();
+        return;
+      }
+      renderSlide(index);
+      index++;
+      timer = setTimeout(nextSlide, slideTime);
+    }
+
+    function endShow(){
+      if (timer) clearTimeout(timer);
+      hide(slideScreen);
+      show(finalScreen);
+      buildCollage();
+    }
+
+    function buildCollage(){
+      collage.innerHTML = "";
+      slides.forEach((s) => {
+        const img = document.createElement("img");
+        img.src = s.img;
+        img.alt = s.text;
+        img.loading = "lazy";
+        img.decoding = "async";
+        img.addEventListener("click", () => openModal(s.img, s.text));
+        collage.appendChild(img);
+      });
+    }
+
+    // === Модалка ===
+    function openModal(src, alt){
+      modalImg.src = src;
+      modalImg.alt = alt || "Фото";
+      modal.classList.add("show");
+      modal.setAttribute("aria-hidden", "false");
+    }
+    function closeModal(){
+      modal.classList.remove("show");
+      modal.setAttribute("aria-hidden", "true");
+      // очистка src чуть разгружает память на мобилках
+      setTimeout(() => { modalImg.src = ""; }, 150);
+    }
+
+    // === Запуск ===
+    async function startShow(){
+      if (started) return;
+      started = true;
+
+      hint.textContent = "Загружаю фото…";
+
+      // Параллельно: пробуем стартануть музыку и грузим фото
+      // Музыка на iPhone должна стартовать строго от жеста — мы внутри клика, ок.
+      try{
+        music.muted = false;
+        setSoundButton();
+        await music.play();
+        fadeInAudio(music, 900, 1.0);
+      } catch (e){
+        // Если браузер запретил — не ломаем показ, просто без музыки
+        hint.textContent = "Если звук не включился — нажми «🔊 Звук» позже.";
+      }
+
+      await preloadSlides();
+
+      hint.textContent = "";
+      hide(startScreen);
+      show(slideScreen);
+
+      index = 0;
+      nextSlide();
+    }
+
+    // === Сердечки (оптимизировано) ===
+    const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let heartsCount = 0;
+    const HEARTS_LIMIT = 18;
+
+    function createHeart(){
+      if (reduceMotion) return;
+      if (document.hidden) return;
+      if (heartsCount >= HEARTS_LIMIT) return;
+
+      heartsCount++;
+      const heart = document.createElement("div");
+      heart.className = "heart";
+      heart.textContent = "❤️";
+      heart.style.left = (Math.random() * 100) + "vw";
+      heart.style.fontSize = (12 + Math.random() * 18) + "px";
+      heart.style.animationDuration = (8 + Math.random() * 7) + "s";
+      document.body.appendChild(heart);
+
+      const life = 16000;
+      setTimeout(() => {
+        heart.remove();
+        heartsCount--;
+      }, life);
+    }
+    setInterval(createHeart, 1100);
+
+    // Сердечки по тапу (лучше pointerdown, чем click)
+    document.addEventListener("pointerdown", (e) => {
+      if (reduceMotion) return;
+      // не рисуем сердечко при нажатии на кнопки/модалку
+      const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : "";
+      if (tag === "button") return;
+      if (modal.classList.contains("show")) return;
+
+      const h = document.createElement("div");
+      h.className = "tap-heart";
+      h.textContent = "❤️";
+      h.style.left = e.clientX + "px";
+      h.style.top = e.clientY + "px";
+      document.body.appendChild(h);
+      setTimeout(() => h.remove(), 1700);
+    }, { passive: true });
+
+    // === События ===
+    startBtn.addEventListener("click", startShow);
+
+    toggleSoundBtn.addEventListener("click", async () => {
+      // Переключатель mute + попытка play если было остановлено
+      music.muted = !music.muted;
+      setSoundButton();
+      if (!music.muted){
+        try{
+          await music.play();
+        } catch(e){}
+      }
+    });
+
+    skipBtn.addEventListener("click", endShow);
+
+    hugBtn.addEventListener("click", () => {
+      hugText.textContent = "Срочно нужно обнять своего Котёмика 🐾❤️";
+    });
+
+    closeModalBtn.addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      // если вкладка скрыта — ставим музыку на паузу (меньше глюков на iOS)
+      if (document.hidden){
+        try{ music.pause(); } catch(e){}
+      }
+    });
+
+    // Инициализация кнопки звука
+    setSoundButton();
+  </script>
 </body>
 </html>
-
-

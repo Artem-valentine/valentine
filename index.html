@@ -118,13 +118,44 @@
       width: min(520px, 92vw);
       margin-top: 10px;
     }
+    .collage .tile{
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 8px 18px rgba(0,0,0,.18);
+      cursor: pointer;
+      background: rgba(255,255,255,.06);
+    }
     .collage img{
       width: 100%;
       aspect-ratio: 1 / 1;
       object-fit: cover;
-      border-radius: 14px;
-      box-shadow: 0 8px 18px rgba(0,0,0,.18);
-      cursor: pointer;
+      display:block;
+    }
+
+    /* бейдж лайка на коллаже */
+    .likeBadge{
+      position:absolute;
+      right: 8px;
+      top: 8px;
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 14px;
+      background: rgba(255,255,255,.92);
+      color: #ff4d6d;
+      box-shadow: 0 10px 18px rgba(0,0,0,.18);
+      opacity: 0;
+      transform: scale(.9);
+      transition: opacity .2s ease, transform .2s ease;
+      pointer-events:none;
+    }
+    .tile.liked .likeBadge{
+      opacity: 1;
+      transform: scale(1);
     }
 
     /* Модалка просмотра фото */
@@ -191,6 +222,46 @@
       100% { transform: translate3d(0,-80px,0) scale(1.35); opacity: 0; }
     }
 
+    /* Кнопка-лайк */
+    .likeBtn{
+      width: 52px;
+      height: 52px;
+      padding: 0;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      background: rgba(255,255,255,.92);
+      color: #ff4d6d;
+      border: 1px solid rgba(255,77,109,.25);
+      box-shadow: 0 10px 22px rgba(0,0,0,.18);
+    }
+    .likeBtn .icon{
+      font-size: 22px;
+      line-height: 1;
+      transform: translateY(1px);
+    }
+    .likeBtn:not(.liked) .icon{
+      opacity: .55;
+      filter: none;
+    }
+    .likeBtn.liked{
+      background: rgba(255,255,255,.98);
+      border-color: rgba(255,77,109,.35);
+    }
+    .likeBtn.liked .icon{
+      opacity: 1;
+      filter: drop-shadow(0 0 10px rgba(255,77,109,.55))
+              drop-shadow(0 0 18px rgba(255,143,171,.45));
+      animation: likePop .28s ease-out;
+    }
+    @keyframes likePop{
+      0%{ transform: scale(.85); }
+      70%{ transform: scale(1.12); }
+      100%{ transform: scale(1); }
+    }
+
     /* Уважение к настройке "уменьшить движение" */
     @media (prefers-reduced-motion: reduce){
       body{ animation:none; }
@@ -220,9 +291,12 @@
       <div class="text" id="slideText"></div>
       <div class="meta" id="progress"></div>
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+      <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; align-items:center;">
         <button id="toggleSoundBtn" aria-label="Включить или выключить звук">🔊 Звук</button>
-        <button id="skipBtn" aria-label="Пропустить к финалу">⏭ Пропустить</button>
+
+        <button id="likeBtn" class="likeBtn" aria-label="Лайк">
+          <span class="icon" id="likeIcon">♡</span>
+        </button>
       </div>
     </div>
   </section>
@@ -241,7 +315,7 @@
     <div class="collage" id="collage" aria-label="Коллаж фотографий"></div>
 
     <p class="meta" style="margin-top:14px; opacity:.8;">
-      (Нажми на фото, чтобы открыть)
+      (Нажми на фото, чтобы открыть. Лайкнутые отмечены ❤️)
     </p>
   </section>
 
@@ -277,7 +351,9 @@
     const progress = document.getElementById("progress");
 
     const toggleSoundBtn = document.getElementById("toggleSoundBtn");
-    const skipBtn = document.getElementById("skipBtn");
+
+    const likeBtn = document.getElementById("likeBtn");
+    const likeIcon = document.getElementById("likeIcon");
 
     const collage = document.getElementById("collage");
     const hugBtn = document.getElementById("hugBtn");
@@ -292,7 +368,11 @@
     let index = 0;
     let timer = null;
 
-    // 20 секунд на всё (как у тебя), но можно поменять
+    // лайки по слайдам: true/false
+    const likes = new Array(slides.length).fill(false);
+    let liked = false; // лайк текущего слайда
+
+    // 30 секунд на всё
     const totalTime = 30000;
     const slideTime = Math.round(totalTime / slides.length);
 
@@ -315,9 +395,26 @@
       toggleSoundBtn.textContent = music.muted ? "🔇 Звук" : "🔊 Звук";
     }
 
+    function setLikeUI(on){
+      likeBtn.classList.toggle("liked", on);
+      likeIcon.textContent = on ? "❤️" : "♡";
+      liked = on;
+    }
+
+    function resetLikeForSlide(i){
+      setLikeUI(!!likes[i]);
+    }
+
+    function toggleLike(){
+      // текущий слайд — это index-1, потому что index увеличивается после renderSlide
+      const current = index - 1;
+      if (current < 0 || current >= slides.length) return;
+
+      likes[current] = !likes[current];
+      setLikeUI(likes[current]);
+    }
+
     async function preloadSlides(){
-      // Предзагрузка: на 5МБ фото может быть тяжело, но лучше так, чем лаги по ходу.
-      // Если будет слишком долго — можно грузить первые 2-3, а остальные по мере показа.
       const tasks = slides.map(s => new Promise(res => {
         const im = new Image();
         im.onload = () => res(true);
@@ -332,16 +429,16 @@
       const s = slides[i];
       progress.textContent = `${i+1} / ${slides.length}`;
 
+      // выставляем лайк для этого слайда (сохранённый)
+      resetLikeForSlide(i);
+
       slideImage.classList.add("fade");
-      // небольшая задержка, чтобы fade успел начаться
       setTimeout(() => {
         slideImage.alt = s.text;
         slideText.textContent = s.text;
 
-        // Смена src
         slideImage.src = s.img;
 
-        // Убираем fade после загрузки (или через таймаут как запасной вариант)
         let done = false;
         const finish = () => {
           if (done) return;
@@ -372,14 +469,25 @@
 
     function buildCollage(){
       collage.innerHTML = "";
-      slides.forEach((s) => {
+      slides.forEach((s, i) => {
+        const tile = document.createElement("div");
+        tile.className = "tile" + (likes[i] ? " liked" : "");
+
         const img = document.createElement("img");
         img.src = s.img;
         img.alt = s.text;
         img.loading = "lazy";
         img.decoding = "async";
-        img.addEventListener("click", () => openModal(s.img, s.text));
-        collage.appendChild(img);
+
+        const badge = document.createElement("div");
+        badge.className = "likeBadge";
+        badge.textContent = "❤️";
+
+        tile.appendChild(img);
+        tile.appendChild(badge);
+
+        tile.addEventListener("click", () => openModal(s.img, s.text));
+        collage.appendChild(tile);
       });
     }
 
@@ -393,7 +501,6 @@
     function closeModal(){
       modal.classList.remove("show");
       modal.setAttribute("aria-hidden", "true");
-      // очистка src чуть разгружает память на мобилках
       setTimeout(() => { modalImg.src = ""; }, 150);
     }
 
@@ -404,15 +511,12 @@
 
       hint.textContent = "Загружаю фото…";
 
-      // Параллельно: пробуем стартануть музыку и грузим фото
-      // Музыка на iPhone должна стартовать строго от жеста — мы внутри клика, ок.
       try{
         music.muted = false;
         setSoundButton();
         await music.play();
         fadeInAudio(music, 900, 1.0);
       } catch (e){
-        // Если браузер запретил — не ломаем показ, просто без музыки
         hint.textContent = "Если звук не включился — нажми «🔊 Звук» позже.";
       }
 
@@ -445,18 +549,15 @@
       heart.style.animationDuration = (8 + Math.random() * 7) + "s";
       document.body.appendChild(heart);
 
-      const life = 16000;
       setTimeout(() => {
         heart.remove();
         heartsCount--;
-      }, life);
+      }, 16000);
     }
     setInterval(createHeart, 1100);
 
-    // Сердечки по тапу (лучше pointerdown, чем click)
     document.addEventListener("pointerdown", (e) => {
       if (reduceMotion) return;
-      // не рисуем сердечко при нажатии на кнопки/модалку
       const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : "";
       if (tag === "button") return;
       if (modal.classList.contains("show")) return;
@@ -474,17 +575,14 @@
     startBtn.addEventListener("click", startShow);
 
     toggleSoundBtn.addEventListener("click", async () => {
-      // Переключатель mute + попытка play если было остановлено
       music.muted = !music.muted;
       setSoundButton();
       if (!music.muted){
-        try{
-          await music.play();
-        } catch(e){}
+        try{ await music.play(); } catch(e){}
       }
     });
 
-    skipBtn.addEventListener("click", endShow);
+    likeBtn.addEventListener("click", toggleLike);
 
     hugBtn.addEventListener("click", () => {
       hugText.textContent = "Срочно нужно обнять своего Котёмика 🐾❤️";
@@ -496,15 +594,13 @@
     });
 
     document.addEventListener("visibilitychange", () => {
-      // если вкладка скрыта — ставим музыку на паузу (меньше глюков на iOS)
       if (document.hidden){
         try{ music.pause(); } catch(e){}
       }
     });
 
-    // Инициализация кнопки звука
     setSoundButton();
+    setLikeUI(false);
   </script>
 </body>
 </html>
-

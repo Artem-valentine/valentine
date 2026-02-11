@@ -16,14 +16,12 @@
 
     *{ margin:0; padding:0; box-sizing:border-box; }
     html, body { height: 100%; }
-
     body{
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       min-height: 100svh;
       color: #fff;
-
-      /* запрет прокрутки страницы */
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
 
       background:
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cpath d='M70 110 C30 70 30 40 50 35 C60 32 70 42 70 42 C70 42 80 32 90 35 C110 40 110 70 70 110 Z' fill='none' stroke='white' stroke-opacity='0.06' stroke-width='3'/%3E%3C/svg%3E"),
@@ -33,38 +31,27 @@
 
     @keyframes pulseBg { from { filter: brightness(1); } to { filter: brightness(1.06); } }
 
-    /* фиксированный экран + корректная высота на мобилках */
     .screen{
-      position: fixed;
-      inset: 0;
-
-      height: 100dvh;
-      height: calc(var(--vh, 1vh) * 100);
-
+      position: relative;
+      min-height: 100svh;
       display:flex;
       flex-direction:column;
       justify-content:center;
       align-items:center;
       text-align:center;
-
-      padding:
-        max(18px, env(safe-area-inset-top))
-        16px
-        max(22px, env(safe-area-inset-bottom));
-
+      padding: 18px 16px 22px;
       z-index: 2;
       gap: 10px;
-      overflow: hidden;
     }
     .hidden{ display:none !important; }
 
     .card{
       width: min(520px, 92vw);
-      background: rgba(255,255,255,.14);
+      background: var(--card);
       border: 1px solid rgba(255,255,255,.18);
       border-radius: 22px;
       padding: 16px;
-      box-shadow: 0 12px 34px rgba(0,0,0,.28);
+      box-shadow: var(--shadow);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
     }
@@ -99,14 +86,10 @@
     #slideImage{
       width: 100%;
       max-width: 360px;
-
-      /* ключевое: чтобы точно влезало на телефонах */
-      max-height: 44dvh;
-      max-height: calc(var(--vh, 1vh) * 44);
-
+      max-height: 52svh;
       object-fit: contain;
       border-radius: var(--radius);
-      box-shadow: 0 12px 34px rgba(0,0,0,.28);
+      box-shadow: var(--shadow);
       transition: opacity .45s ease;
       opacity: 1;
       background: rgba(255,255,255,.08);
@@ -150,6 +133,7 @@
       display:block;
     }
 
+    /* бейдж лайка на коллаже */
     .likeBadge{
       position:absolute;
       right: 8px;
@@ -278,6 +262,7 @@
       100%{ transform: scale(1); }
     }
 
+    /* Уважение к настройке "уменьшить движение" */
     @media (prefers-reduced-motion: reduce){
       body{ animation:none; }
       .heart, .tap-heart{ display:none !important; }
@@ -289,6 +274,7 @@
 <body>
   <audio id="music" src="music.mp3" preload="auto" playsinline></audio>
 
+  <!-- START -->
   <section class="screen" id="startScreen">
     <div class="card">
       <h1>Для тебя, моя 🦊❤️</h1>
@@ -298,6 +284,7 @@
     </div>
   </section>
 
+  <!-- SLIDESHOW -->
   <section class="screen hidden" id="slideScreen">
     <div id="slideWrap">
       <img id="slideImage" alt="" />
@@ -306,6 +293,7 @@
 
       <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; align-items:center;">
         <button id="toggleSoundBtn" aria-label="Включить или выключить звук">🔊 Звук</button>
+
         <button id="likeBtn" class="likeBtn" aria-label="Лайк">
           <span class="icon" id="likeIcon">♡</span>
         </button>
@@ -313,6 +301,7 @@
     </div>
   </section>
 
+  <!-- FINAL -->
   <section class="screen hidden" id="finalScreen">
     <div class="card">
       <h2>С Днём Святого Валентина ❤️</h2>
@@ -330,21 +319,14 @@
     </p>
   </section>
 
+  <!-- MODAL -->
   <div class="modal" id="modal" aria-hidden="true">
     <button class="close" id="closeModalBtn" aria-label="Закрыть">✕</button>
     <img id="modalImg" alt="Фото" />
   </div>
 
   <script>
-    // Фикс высоты viewport для iOS/Android (адресная строка меняет высоту)
-    function setVh(){
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-    }
-    setVh();
-    window.addEventListener('resize', setVh);
-    window.addEventListener('orientationchange', setVh);
-
+    // === Настройка слайдов ===
     const slides = [
       { img: "images/photo1.jpg", text: "Моя Настюшка…" },
       { img: "images/photo2.jpg", text: "…С тобой каждый мой день — особенный" },
@@ -354,6 +336,7 @@
       { img: "images/photo6.jpg", text: "Наш любимый момент в одном кадре⛸️❄️" }
     ];
 
+    // === Элементы ===
     const music = document.getElementById("music");
 
     const startScreen = document.getElementById("startScreen");
@@ -380,15 +363,20 @@
     const modalImg = document.getElementById("modalImg");
     const closeModalBtn = document.getElementById("closeModalBtn");
 
+    // === Состояние ===
     let started = false;
     let index = 0;
     let timer = null;
 
+    // лайки по слайдам: true/false
     const likes = new Array(slides.length).fill(false);
+    let liked = false; // лайк текущего слайда
 
+    // 30 секунд на всё
     const totalTime = 30000;
     const slideTime = Math.round(totalTime / slides.length);
 
+    // === Утилиты ===
     function show(el){ el.classList.remove("hidden"); }
     function hide(el){ el.classList.add("hidden"); }
 
@@ -410,6 +398,7 @@
     function setLikeUI(on){
       likeBtn.classList.toggle("liked", on);
       likeIcon.textContent = on ? "❤️" : "♡";
+      liked = on;
     }
 
     function resetLikeForSlide(i){
@@ -417,8 +406,10 @@
     }
 
     function toggleLike(){
+      // текущий слайд — это index-1, потому что index увеличивается после renderSlide
       const current = index - 1;
       if (current < 0 || current >= slides.length) return;
+
       likes[current] = !likes[current];
       setLikeUI(likes[current]);
     }
@@ -433,15 +424,19 @@
       await Promise.all(tasks);
     }
 
+    // === Слайдшоу ===
     function renderSlide(i){
       const s = slides[i];
       progress.textContent = `${i+1} / ${slides.length}`;
+
+      // выставляем лайк для этого слайда (сохранённый)
       resetLikeForSlide(i);
 
       slideImage.classList.add("fade");
       setTimeout(() => {
         slideImage.alt = s.text;
         slideText.textContent = s.text;
+
         slideImage.src = s.img;
 
         let done = false;
@@ -496,6 +491,7 @@
       });
     }
 
+    // === Модалка ===
     function openModal(src, alt){
       modalImg.src = src;
       modalImg.alt = alt || "Фото";
@@ -508,14 +504,10 @@
       setTimeout(() => { modalImg.src = ""; }, 150);
     }
 
+    // === Запуск ===
     async function startShow(){
       if (started) return;
       started = true;
-
-      // сброс возможного скролла
-      window.scrollTo(0, 0);
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
 
       hint.textContent = "Загружаю фото…";
 
@@ -538,6 +530,7 @@
       nextSlide();
     }
 
+    // === Сердечки (оптимизировано) ===
     const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let heartsCount = 0;
     const HEARTS_LIMIT = 18;
@@ -578,6 +571,7 @@
       setTimeout(() => h.remove(), 1700);
     }, { passive: true });
 
+    // === События ===
     startBtn.addEventListener("click", startShow);
 
     toggleSoundBtn.addEventListener("click", async () => {
@@ -610,3 +604,6 @@
   </script>
 </body>
 </html>
+
+
+
